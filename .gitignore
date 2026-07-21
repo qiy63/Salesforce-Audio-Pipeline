@@ -1,0 +1,7 @@
+# .gitignore
+sf_auth.json
+savepoint.json
+downloads/
+*.xlsx
+__pycache__/
+.env
