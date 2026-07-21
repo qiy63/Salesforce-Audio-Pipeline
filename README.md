@@ -14,31 +14,26 @@ To create a fully automated, zero-touch pipeline that transforms locked away, mu
 ## 📊 How It Works (System Architecture)
 
 ```mermaid
-graph TD
-    subgraph Initialization
-        A[Workbench SOQL Query] -->|Extracts Case/Call IDs| B(Input Excel File)
-        C[auth.py] -->|Playwright MFA Login| D{sf_auth.json Session Key}
-    end
+graph LR
+    %% Inputs and Authentication
+    A[Workbench SOQL] -->|Case & Call IDs| B[(Input Excel)]
+    C[auth.py] -->|MFA Login| D[(sf_auth.json)]
 
-    subgraph Data Extraction
-        B --> E[api.py]
-        D --> E
-        E -->|Scrapes Salesforce UI/API| F[Local Downloads Folder .mp3]
-    end
+    %% Downloading
+    B --> E[api.py]
+    D -.-> E
+    E -->|Downloads Audio| F[(Local .mp3 Folder)]
 
-    subgraph Audit & Verification
-        D --> G[checker.py]
-        F --> G
-        B --> G
-        G -->|Cross-references files vs SF| H[Audit Report Excel]
-    end
+    %% Transcription
+    F --> I[transcribe_cases.py]
+    I <-->|Transcribes & Translates| J((Gemini AI API))
+    I -->|Appends Text| B
 
-    subgraph AI Transcription
-        F --> I[transcribe_cases.py]
-        I -->|Sends Audio| J((Gemini AI API))
-        J -->|Returns English Translation & Speakers| I
-        I -->|Appends Transcripts to| B
-    end
+    %% Auditing
+    F -.-> G[checker.py]
+    B -.-> G
+    D -.-> G
+    G -->|Generates| H[(Audit Report Excel)]
 ```
 
 ## 🛠 Setup & Prerequisites
